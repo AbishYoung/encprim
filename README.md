@@ -114,4 +114,4 @@ func main() {
 ```
 
 ## License
-This project is licensed under the MIT OSS license. For more information see the [LICENSE.md] file.
+This project is licensed under the MIT OSS license. For more information see the [LICENSE.md](LICENSE.md) file.

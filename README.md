@@ -24,7 +24,7 @@ func main() {
 	err := key.FromString(password)
 	if err != nil {
 		panic("Uh oh something went wrong!")
-    }
+	}
 	
 	// key is now populated with a new encryption key as well as a random salt!
 	// if you plan to rederive the same key at a later point, whether you want to only
@@ -56,7 +56,7 @@ func main() {
 	err := key.RederiveKey(password, salt)
 	if err != nil {
 		panic("Uh oh something went wrong!")
-    }
+	}
 	
 	// key should now be populated with the same data as was used to originally derive the
 	// encryption key.
@@ -75,7 +75,7 @@ func main() {
 	ciphertext, err := key.Encrypt([]byte("Hello, World!"))
 	if err != nil {
 		panic("Uh oh something went wrong!")
-    }
+	}
 	
 	// ciphertext will now be populated with a new encprim.CipherBlock struct.
 	// The encrypted data can then be accessed through ciphertext.Bytes and the unique
@@ -101,12 +101,12 @@ func main() {
 	block, err := encprim.NewCipherBlock(ciphertext, nonce)
 	if err != nil {
 		panic("The nonce is probably not %d bytes...", encprim.AESNonceLength)
-    }
+	}
 	
 	plaintext, err := key.Decrypt(block)
 	if err != nil {
 		panic("Uh oh something went wrong!")
-    }
+	}
 	
 	// plaintext should now hold a byte slice populated with the decrypted plaintext which
 	// can then be used how-so-ever you desire.

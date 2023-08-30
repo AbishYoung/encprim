@@ -25,6 +25,7 @@ const (
 )
 
 // Key provides a structured representation of an encryption/decryption key.
+//
 // NOTE: NEVER REUSE A SALT FOR ENCRYPTION!
 //
 // A salt must always be cryptographically random when derivation for encryption is performed
@@ -37,6 +38,7 @@ type Key struct {
 }
 
 // CipherBlock provides a structured representation of a ciphertext and it's parts.
+//
 // NOTE: When encryption is performed a random nonce is generated. This must be included
 // with the ciphertext in order for decryption to be performed successfully.
 //
@@ -63,6 +65,7 @@ func NewCipherBlock(bytes []byte, nonce []byte) (CipherBlock, error) {
 }
 
 // generateUniqueBytes generates a cryptographically random set of AESNonceLength bytes.
+//
 // This function is not exported because you should almost never be generating your own
 // salts or nonces as this library is designed to do that for you to minimize the possibility
 // of salt/nonce reuse.
@@ -80,6 +83,7 @@ func generateUniqueBytes() ([AESNonceLength]byte, error) {
 }
 
 // newAESGCMCipher sets up a cipher structure for 256-bit AES-GCM operations.
+//
 // This function is not exported because you should be using the primitives provided
 // rather than trying to do this yourself. That is why you are using a library isn't it?
 func newAESGCMCipher(key []byte) (cipher.AEAD, error) {
@@ -99,6 +103,7 @@ func newAESGCMCipher(key []byte) (cipher.AEAD, error) {
 }
 
 // deriveKey takes a password and a salt and uses it to derive a cryptographic key.
+//
 // This function is not exported because it allows you to specify a salt for key derivation
 // and this is only optimal for decryption and should never be done when deriving a key for
 // encryption as one will securely be generated for each encryption option. Instead, another
@@ -120,6 +125,7 @@ func deriveKey(password string, inSalt [ScryptSaltLength]byte) ([]byte, error) {
 }
 
 // FromString provides a way to generate a new key from a password/passphrase.
+//
 // This function should only ever be used when deriving a key for encryption. To
 // rederive a key from a known salt and a pre-shared or otherwise already known
 // password/passphrase please use the RederiveKey method. The salt does not need
@@ -143,11 +149,12 @@ func (k *Key) FromString(password string) error {
 	return nil
 }
 
-// RederiveKey provides a way to rederive a key from a known salt and a known password/passphrase/
+// RederiveKey provides a way to rederive a key from a known salt and a known password/passphrase
+//
 // This function SHOULD ONLY BE USED FOR DECRYPTION as reusing a salt reduces the security
 // of the generated key. If you are using this for encryption outside unit testing you
 // need to stop and rethink what you are doing because I promise you that you don't want
-// to do this. Just use a new salt for every new key unless you are trying to rederive a key
+// to do this. Just use a new salt for every new key **unless** you are trying to rederive a key
 // from a known password/passphrase and a salt.
 func (k *Key) RederiveKey(password string, salt []byte) error {
 	var saltArray [ScryptSaltLength]byte
@@ -172,6 +179,7 @@ func (k *Key) RederiveKey(password string, salt []byte) error {
 }
 
 // Encrypt provides a way to encrypt an arbitrary slice of bytes using a given key.
+//
 // The key should be derived from the FromString function and NEVER from the
 // RederiveKey function!
 func (k *Key) Encrypt(plaintext []byte) (CipherBlock, error) {
@@ -195,8 +203,10 @@ func (k *Key) Encrypt(plaintext []byte) (CipherBlock, error) {
 }
 
 // Decrypt provides a way to decrypt an arbitrary slice of bytes given a known nonce.
+//
 // The nonce provided should always be the nonce that was used to encrypt the ciphertext
 // otherwise this function will fail to produce a plaintext and will instead return an error.
+//
 // It is important that the nonce be included when distributing the ciphertext and the nonce
 // does not need to be kept secret and can be shared in the clear.
 func (k *Key) Decrypt(ciphertext CipherBlock) ([]byte, error) {

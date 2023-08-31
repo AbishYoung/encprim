@@ -74,7 +74,7 @@ func generateUniqueBytes() ([AESNonceLength]byte, error) {
 
 	bytes := make([]byte, AESNonceLength)
 	if _, err := rand.Read(bytes); err != nil {
-		err = fmt.Errorf("error generating random bytes: %s", err)
+		err = fmt.Errorf("error generating random bytes: %w", err)
 		return [AESNonceLength]byte{}, err
 	}
 
@@ -89,13 +89,13 @@ func generateUniqueBytes() ([AESNonceLength]byte, error) {
 func newAESGCMCipher(key []byte) (cipher.AEAD, error) {
 	aesCipher, err := aes.NewCipher(key)
 	if err != nil {
-		err = fmt.Errorf("error creating new cipher: %s", err)
+		err = fmt.Errorf("error creating new cipher: %w", err)
 		return nil, err
 	}
 
 	gcm, err := cipher.NewGCM(aesCipher)
 	if err != nil {
-		err = fmt.Errorf("error setting up GCM mode: %s", err)
+		err = fmt.Errorf("error setting up GCM mode: %w", err)
 		return nil, err
 	}
 
@@ -117,7 +117,7 @@ func deriveKey(password string, inSalt [ScryptSaltLength]byte) ([]byte, error) {
 
 	key, err := scrypt.Key([]byte(password), inSalt[:], ScryptN, ScryptR, ScryptP, AESKeyLength)
 	if err != nil {
-		err = fmt.Errorf("error generating key: %s", err)
+		err = fmt.Errorf("error generating key: %w", err)
 		return nil, err
 	}
 
@@ -133,13 +133,13 @@ func deriveKey(password string, inSalt [ScryptSaltLength]byte) ([]byte, error) {
 func (k *Key) FromString(password string) error {
 	salt, err := generateUniqueBytes()
 	if err != nil {
-		err = fmt.Errorf("error generating unique salt: %s", err)
+		err = fmt.Errorf("error generating unique salt: %w", err)
 		return err
 	}
 
 	key, err := deriveKey(password, salt)
 	if err != nil {
-		err = fmt.Errorf("error deriving a key from password: %s", err)
+		err = fmt.Errorf("error deriving a key from password: %w", err)
 		return err
 	}
 
@@ -168,7 +168,7 @@ func (k *Key) RederiveKey(password string, salt []byte) error {
 
 	key, err := deriveKey(password, saltArray)
 	if err != nil {
-		err = fmt.Errorf("error rederiving key: %s", err)
+		err = fmt.Errorf("error rederiving key: %w", err)
 		return err
 	}
 
@@ -187,13 +187,13 @@ func (k *Key) Encrypt(plaintext []byte) (CipherBlock, error) {
 
 	nonce, err := generateUniqueBytes()
 	if err != nil {
-		err = fmt.Errorf("error generating unique nonce: %s", err)
+		err = fmt.Errorf("error generating unique nonce: %w", err)
 		return nilBlock, err
 	}
 
 	gcm, err := newAESGCMCipher(k.Key[:])
 	if err != nil {
-		err = fmt.Errorf("error initializing new cipher: %s", err)
+		err = fmt.Errorf("error initializing new cipher: %w", err)
 		return nilBlock, err
 	}
 
@@ -212,13 +212,13 @@ func (k *Key) Encrypt(plaintext []byte) (CipherBlock, error) {
 func (k *Key) Decrypt(ciphertext CipherBlock) ([]byte, error) {
 	gcm, err := newAESGCMCipher(k.Key[:])
 	if err != nil {
-		err = fmt.Errorf("error initializing new cipher: %s", err)
+		err = fmt.Errorf("error initializing new cipher: %w", err)
 		return nil, err
 	}
 
 	plaintext, err := gcm.Open(nil, ciphertext.Nonce[:], ciphertext.Bytes[:], nil)
 	if err != nil {
-		err = fmt.Errorf("error decrypting: %s")
+		err = fmt.Errorf("error decrypting: %w", err)
 		return nil, err
 	}
 
